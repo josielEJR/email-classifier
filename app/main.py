@@ -5,15 +5,21 @@ import joblib
 import pdfplumber
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from openai import OpenAI
 
 # ---------------------------------------------------------
-# Configuração e carregamento de dependências
+# Caminhos base
 # ---------------------------------------------------------
 
-# Caminho absoluto do modelo (model.pkl) dentro da pasta app
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
+WEB_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "web"))
+
+# ---------------------------------------------------------
+# Verificações e carregamentos iniciais
+# ---------------------------------------------------------
 
 if not os.path.exists(MODEL_PATH):
     raise RuntimeError(
@@ -45,6 +51,9 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# Servir arquivos estáticos (CSS, JS, etc.) em /static
+app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
+
 # Libera o acesso do frontend (localhost, etc.)
 app.add_middleware(
     CORSMiddleware,
@@ -53,7 +62,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # ---------------------------------------------------------
 # Funções auxiliares
@@ -66,18 +74,16 @@ def extrair_texto_arquivo(file: UploadFile) -> str:
     filename = file.filename or ""
 
     if filename.lower().endswith(".txt"):
-        # Leitura de arquivo texto
         raw = file.file.read()
-        # Se for async, poderíamos usar await file.read(), mas aqui usamos .file direto
         try:
             return raw.decode("utf-8", errors="ignore")
         except AttributeError:
-            # Caso raw já seja string
             return str(raw)
 
     elif filename.lower().endswith(".pdf"):
-        # Leitura de PDF com pdfplumber
         texto = ""
+        # garante que o ponteiro está no início
+        file.file.seek(0)
         with pdfplumber.open(file.file) as pdf:
             for page in pdf.pages:
                 page_text = page.extract_text() or ""
@@ -126,7 +132,7 @@ Nada de explicações adicionais, apenas a resposta pronta.
 
     try:
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",  # modelo leve, bom para esse tipo de tarefa
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
@@ -138,10 +144,8 @@ Nada de explicações adicionais, apenas a resposta pronta.
         return resposta
 
     except Exception as e:
-        # Log simples no servidor
         print(f"[ERRO OPENAI] {e}")
 
-        # Fallback simples se a API falhar
         if categoria == "Produtivo":
             return (
                 "Olá! Recebemos sua mensagem e estamos analisando sua solicitação. "
@@ -153,17 +157,19 @@ Nada de explicações adicionais, apenas a resposta pronta.
                 "No momento não é necessária nenhuma ação adicional."
             )
 
-
 # ---------------------------------------------------------
 # Rotas da API
 # ---------------------------------------------------------
 
-@app.get("/")
-def health_check():
+@app.get("/", include_in_schema=False)
+def serve_front():
     """
-    Health check simples para verificar se a API está no ar.
+    Serve a interface web (index.html).
     """
-    return {"status": "ok", "message": "API de classificação de emails em execução."}
+    index_path = os.path.join(WEB_DIR, "index.html")
+    if not os.path.exists(index_path):
+        raise HTTPException(status_code=500, detail="Arquivo index.html não encontrado.")
+    return FileResponse(index_path)
 
 
 @app.post("/process")
@@ -172,10 +178,9 @@ async def process_email(
     file: Optional[UploadFile] = File(None),
 ):
     """
-    Recebe ou texto direto (campo 'text') ou um arquivo (.txt/.pdf),
+    Recebe texto direto (campo 'text') ou um arquivo (.txt/.pdf),
     classifica o email e gera uma resposta automática.
     """
-    # 1) Obtém o conteúdo do email
     if file is not None:
         conteudo = extrair_texto_arquivo(file)
     elif text:
@@ -193,16 +198,14 @@ async def process_email(
             detail="O conteúdo do email está vazio após a leitura.",
         )
 
-    # 2) Classificação com o modelo de ML
+    # Classificação com o modelo de ML
     categoria = model.predict([conteudo_limpo])[0]
 
-    # 3) Geração de resposta com GPT
+    # Geração de resposta com GPT
     resposta = gerar_resposta_gpt(categoria, conteudo_limpo)
 
-    # 4) Retorno para o frontend
     return {
         "categoria": categoria,
         "resposta": resposta,
-        # Enviar só um trecho do texto para debug/visualização (opcional)
         "texto_extraido": conteudo_limpo[:500],
     }

@@ -8,6 +8,12 @@ Este projeto é uma aplicação web que:
    - `Improdutivo` (mensagens de cortesia, agradecimentos etc.)
 3. **Gera uma resposta automática** em português, usando **OpenAI GPT**.
 
+## 🖼️ Screenshot
+
+> Exemplo de tela da aplicação em uso:
+
+![Screenshot da aplicação](web/print.png)
+
 Projeto desenvolvido como solução para um **desafio de processo seletivo** na área de IA / automação de atendimento.
 
 ---

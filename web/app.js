@@ -29,7 +29,7 @@ sendBtn.addEventListener("click", async () => {
     if (btnTextEl) btnTextEl.textContent = "Processando...";
 
     try {
-        const response = await fetch("http://127.0.0.1:8000/process", {
+        const response = await fetch("/process", {
             method: "POST",
             body: formData,
         });
