@@ -2,21 +2,30 @@
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Classificador de Emails</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
+    <div class="main-content">
     <div class="container">
         <h1>📧 Classificador de Emails</h1>
 
         <textarea id="emailText" placeholder="Cole o texto do email aqui..."></textarea>
 
         <div class="upload-section">
-            <input type="file" id="fileInput" accept=".txt,.pdf">
-            <button id="sendBtn">Processar</button>
+            <input type="file" id="fileInput" accept=".txt,.pdf" />
+
+            <!-- Botão com texto + spinner -->
+            <button id="sendBtn" type="button">
+                <span class="btn-text">Processar</span>
+                <span class="spinner" aria-hidden="true"></span>
+            </button>
         </div>
+
+        <!-- Mensagem de status -->
+        <p id="status" class="status"></p>
 
         <div id="result">
             <h2>Resultado</h2>
@@ -24,6 +33,7 @@
             <p><strong>Resposta sugerida:</strong></p>
             <p id="reply"></p>
         </div>
+    </div>
     </div>
 
     <script src="app.js"></script>

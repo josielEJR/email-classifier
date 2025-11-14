@@ -1,0 +1,62 @@
+# -------------------------
+# Ambientes virtuais Python
+# -------------------------
+venv/
+.env
+.env.*
+.venv/
+ENV/
+env/
+
+# -------------------------
+# Arquivos Python gerados
+# -------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# -------------------------
+# Logs
+# -------------------------
+*.log
+
+# -------------------------
+# Cache de testes
+# -------------------------
+.pytest_cache/
+.coverage
+htmlcov/
+
+# -------------------------
+# Arquivos de sistema (SO)
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Config de IDEs/editores
+# -------------------------
+.vscode/
+.idea/
+*.iml
+
+# -------------------------
+# Arquivos de build / dist
+# -------------------------
+build/
+dist/
+*.egg-info/
+
+# -------------------------
+# Modelos binários
+# (se quiser manter só o código,
+# e for ok o avaliador rodar o treino)
+# -------------------------
+app/model.pkl
+*.pkl
+
+# -------------------------
+# Outros arquivos comuns
+# -------------------------
+*.sqlite3
+*.db
