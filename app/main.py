@@ -1,25 +1,25 @@
 import os
-from typing import Optional
+from typing import Optional, List
 
 import joblib
 import pdfplumber
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
+from dotenv import load_dotenv
 from openai import OpenAI
 
-# ---------------------------------------------------------
 # Caminhos base
-# ---------------------------------------------------------
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
 WEB_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "web"))
 
-# ---------------------------------------------------------
+# Carrega variáveis do .env
+load_dotenv()
+
 # Verificações e carregamentos iniciais
-# ---------------------------------------------------------
 
 if not os.path.exists(MODEL_PATH):
     raise RuntimeError(
@@ -41,9 +41,7 @@ if not api_key:
 # Inicializa o cliente da OpenAI
 client = OpenAI(api_key=api_key)
 
-# ---------------------------------------------------------
 # Configuração da aplicação FastAPI
-# ---------------------------------------------------------
 
 app = FastAPI(
     title="Classificador de Emails - AutoU",
@@ -54,6 +52,21 @@ app = FastAPI(
 # Servir arquivos estáticos (CSS, JS, etc.) em /static
 app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
 
+# Servir arquivos estáticos também em caminhos relativos (para compatibilidade)
+@app.get("/styles.css", include_in_schema=False)
+def serve_css():
+    css_path = os.path.join(WEB_DIR, "styles.css")
+    if not os.path.exists(css_path):
+        raise HTTPException(status_code=404, detail="Arquivo styles.css não encontrado.")
+    return FileResponse(css_path, media_type="text/css")
+
+@app.get("/app.js", include_in_schema=False)
+def serve_js():
+    js_path = os.path.join(WEB_DIR, "app.js")
+    if not os.path.exists(js_path):
+        raise HTTPException(status_code=404, detail="Arquivo app.js não encontrado.")
+    return FileResponse(js_path, media_type="application/javascript")
+
 # Libera o acesso do frontend (localhost, etc.)
 app.add_middleware(
     CORSMiddleware,
@@ -63,9 +76,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------------------------------------------------------
 # Funções auxiliares
-# ---------------------------------------------------------
 
 def extrair_texto_arquivo(file: UploadFile) -> str:
     """
@@ -157,9 +168,16 @@ Nada de explicações adicionais, apenas a resposta pronta.
                 "No momento não é necessária nenhuma ação adicional."
             )
 
-# ---------------------------------------------------------
 # Rotas da API
-# ---------------------------------------------------------
+
+# Rota para silenciar requisições do Chrome DevTools (evita 404 no console)
+@app.get("/.well-known/appspecific/com.chrome.devtools.json", include_in_schema=False)
+def chrome_devtools():
+    """
+    Chrome DevTools tenta acessar esse arquivo, mas não é necessário.
+    Retorna 204 (No Content) para silenciar o erro 404.
+    """
+    return Response(status_code=204)
 
 @app.get("/", include_in_schema=False)
 def serve_front():
@@ -209,3 +227,48 @@ async def process_email(
         "resposta": resposta,
         "texto_extraido": conteudo_limpo[:500],
     }
+
+@app.post("/process_batch")
+async def process_batch(
+    files: List[UploadFile] = File(...)
+):
+    """
+    Recebe múltiplos arquivos (.txt/.pdf),
+    classifica cada email e gera uma resposta automática.
+    """
+    if not files:
+        raise HTTPException(
+            status_code=400,
+            detail="Nenhum arquivo enviado. Envie pelo menos um arquivo .txt/.pdf."
+        )
+
+    resultados = []
+
+    for f in files:
+        try:
+            conteudo = extrair_texto_arquivo(f)
+            conteudo_limpo = conteudo.strip()
+
+            if not conteudo_limpo:
+                resultados.append({
+                    "filename": f.filename,
+                    "erro": "Conteúdo vazio após leitura."
+                })
+                continue
+
+            categoria = model.predict([conteudo_limpo])[0]
+            resposta = gerar_resposta_gpt(categoria, conteudo_limpo)
+
+            resultados.append({
+                "filename": f.filename,
+                "categoria": categoria,
+                "resposta": resposta,
+                "preview": conteudo_limpo[:200]
+            })
+        except Exception as e:
+            resultados.append({
+                "filename": f.filename,
+                "erro": f"Falha ao processar arquivo: {e}"
+            })
+
+    return {"resultados": resultados}

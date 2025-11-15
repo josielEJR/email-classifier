@@ -3,40 +3,178 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Classificador de Emails</title>
-  <link rel="stylesheet" href="/static/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classificador de Emails IA | Produtivo x Improdutivo</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
 </head>
 
 <body>
-    <div class="main-content">
+
+  <div class="main-content">
     <div class="container">
-        <h1>📧 Classificador de Emails</h1>
+      <!-- Header -->
+      <header class="header">
+        <h1>Classificador de Emails IA</h1>
+      </header>
 
-        <textarea id="emailText" placeholder="Cole o texto do email aqui..."></textarea>
+      <!-- Estatísticas rápidas -->
+      <div class="stats-container" id="statsContainer">
+        <div class="stat-card">
+          <div class="stat-info">
+            <div class="stat-value" id="totalEmails">0</div>
+            <div class="stat-label">Total analisado</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-info">
+            <div class="stat-value" id="productiveEmails">0</div>
+            <div class="stat-label">Produtivos</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-info">
+            <div class="stat-value" id="unproductiveEmails">0</div>
+            <div class="stat-label">Improdutivos</div>
+          </div>
+        </div>
+      </div>
 
-        <div class="upload-section">
-            <input type="file" id="fileInput" accept=".txt,.pdf" />
+      <!-- Área de input -->
+      <div class="input-section">
+        <div class="input-tabs">
+          <button class="tab-btn active" data-tab="text">Texto</button>
+          <button class="tab-btn" data-tab="file">Arquivo</button>
+        </div>
 
-            <!-- Botão com texto + spinner -->
-            <button id="sendBtn" type="button">
-                <span class="btn-text">Processar</span>
-                <span class="spinner" aria-hidden="true"></span>
+        <!-- Tab de texto -->
+        <div class="tab-content active" id="textTab">
+          <div class="textarea-wrapper">
+            <textarea
+              id="emailText"
+              placeholder="Cole o texto aqui"
+              rows="8"
+            ></textarea>
+            <div class="char-counter">
+              <span id="charCount">0</span> caracteres
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab de arquivo com drag & drop (suporta múltiplos arquivos) -->
+        <div class="tab-content" id="fileTab">
+          <div class="file-drop-zone" id="fileDropZone">
+            <div class="drop-zone-content">
+              <p class="drop-text">Arraste e solte seus arquivos aqui</p>
+              <p class="drop-subtext">ou clique para selecionar</p>
+              <p class="drop-formats">
+                Formatos aceitos: .txt, .pdf &nbsp;|&nbsp; Máximo 6 arquivos
+              </p>
+            </div>
+            <input type="file" id="fileInput" accept=".txt,.pdf" multiple hidden />
+          </div>
+          <div class="file-info" id="fileInfo" style="display: none;">
+            <div class="file-name">
+              <span id="fileName"></span>
+            </div>
+            <button class="remove-file" id="removeFile">✕</button>
+          </div>
+        </div>
+
+        <!-- Botão de processar (modo depende da aba ativa) -->
+        <button id="sendBtn" class="process-btn" type="button">
+          <span class="btn-text">Processar</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+
+        <!-- Status -->
+        <div id="status" class="status-message"></div>
+        <div id="batchStatus" class="status-message"></div>
+      </div>
+
+      <!-- Resultado (processamento individual) -->
+      <div id="result" class="result-container" style="display: none;">
+        <div class="result-header">
+          <h2>Resultado da Análise</h2>
+          <button class="close-result" id="closeResult">✕</button>
+        </div>
+
+        <!-- Card de categoria -->
+        <div class="category-card" id="categoryCard">
+          <div class="category-icon-wrapper">
+            <div class="category-icon" id="categoryIcon"></div>
+          </div>
+          <div class="category-content">
+            <div class="category-label">Categoria</div>
+            <div class="category-value" id="category"></div>
+            <div class="category-description" id="categoryDescription"></div>
+          </div>
+        </div>
+
+        <!-- Preview do texto -->
+        <div class="text-preview" id="textPreview" style="display: none;">
+          <div class="preview-header">
+            <span>Texto analisado</span>
+            <button class="toggle-preview" id="togglePreview">▼</button>
+          </div>
+          <div class="preview-content" id="previewContent"></div>
+        </div>
+
+        <!-- Card de resposta -->
+        <div class="reply-card">
+          <div class="reply-header">
+            <span>Resposta Sugerida</span>
+            <button class="copy-btn" id="copyBtn" title="Copiar resposta">
+              <span class="copy-text">Copiar</span>
             </button>
+          </div>
+          <div class="reply-content" id="reply"></div>
         </div>
+      </div>
 
-        <!-- Mensagem de status -->
-        <p id="status" class="status"></p>
-
-        <div id="result">
-            <h2>Resultado</h2>
-            <p><strong>Categoria:</strong> <span id="category"></span></p>
-            <p><strong>Resposta sugerida:</strong></p>
-            <p id="reply"></p>
+      <!-- Resultados em lote -->
+      <div class="batch-results" id="batchResults" style="display: none;">
+        <div class="result-header">
+          <h2>Resultados da Análise</h2>
+          <button class="clear-results-btn" id="clearResultsBtn" title="Limpar resultados">
+            Limpar
+          </button>
         </div>
-    </div>
-    </div>
+        <div class="batch-table-wrapper">
+          <table id="batchTable" class="batch-table">
+            <thead>
+              <tr>
+                <th>Arquivo</th>
+                <th>Categoria</th>
+                <th>Resposta Sugerida</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
 
-    <script src="/static/app.js"></script>
+      <!-- Histórico -->
+      <div class="history-section" id="historySection" style="display: none;">
+        <div class="history-header">
+          <h3>Histórico de Análises</h3>
+          <button class="clear-history" id="clearHistory">Limpar</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
 </body>
 
 </html>
