@@ -208,6 +208,12 @@ function setupDragAndDropSingle() {
   fileDropZone.addEventListener("drop", (e) => {
     const files = e.dataTransfer.files;
     if (files.length > 0) {
+      // Validar quantidade de arquivos
+      if (files.length > 6) {
+        showToast(`⚠️ Máximo de 6 arquivos permitidos! Você tentou enviar ${files.length} arquivos. Apenas os primeiros 6 serão processados.`, "error");
+        showBatchStatus(`⚠️ Máximo de 6 arquivos permitidos! ${files.length - 6} arquivo(s) foram ignorados.`, "error");
+      }
+      
       // Limitar a 6 arquivos
       const filesArray = Array.from(files).slice(0, 6);
       const dataTransfer = new DataTransfer();
@@ -225,19 +231,25 @@ function setupDragAndDropSingle() {
 function handleFileSelectSingle() {
   const files = fileInput.files;
   if (files.length > 0) {
-    // Limitar a 6 arquivos
+    // Validar e limitar a 6 arquivos
     if (files.length > 6) {
-      showToast("Máximo de 6 arquivos permitidos. Apenas os primeiros 6 serão processados.", "error");
+      const originalCount = files.length;
+      showToast(`⚠️ Máximo de 6 arquivos permitidos! Você selecionou ${originalCount} arquivos. Apenas os primeiros 6 serão processados.`, "error");
+      showBatchStatus(`⚠️ Máximo de 6 arquivos permitidos! ${originalCount - 6} arquivo(s) foram ignorados.`, "error");
+      
       const filesArray = Array.from(files).slice(0, 6);
       const dataTransfer = new DataTransfer();
       filesArray.forEach(file => dataTransfer.items.add(file));
       fileInput.files = dataTransfer.files;
+    } else {
+      // Limpar status de erro se a quantidade estiver ok
+      showBatchStatus("", "info");
     }
     
-    if (files.length === 1) {
-      fileName.textContent = files[0].name;
+    if (fileInput.files.length === 1) {
+      fileName.textContent = fileInput.files[0].name;
     } else {
-      fileName.textContent = `${files.length} arquivo(s) selecionado(s)`;
+      fileName.textContent = `${fileInput.files.length} arquivo(s) selecionado(s)`;
     }
     fileInfo.style.display = "flex";
     fileDropZone.style.display = "none";
@@ -317,11 +329,13 @@ async function processEmail() {
 async function processBatch() {
   if (!fileInput || fileInput.files.length === 0) {
     showToast("Selecione pelo menos um arquivo.", "error");
+    showBatchStatus("⚠️ Selecione pelo menos um arquivo para processar.", "error");
     return;
   }
 
   if (fileInput.files.length > 6) {
-    showToast("Máximo de 6 arquivos permitidos.", "error");
+    showToast(`⚠️ Máximo de 6 arquivos permitidos! Você tentou processar ${fileInput.files.length} arquivos.`, "error");
+    showBatchStatus(`⚠️ Máximo de 6 arquivos permitidos! Remova ${fileInput.files.length - 6} arquivo(s) antes de processar.`, "error");
     return;
   }
 
