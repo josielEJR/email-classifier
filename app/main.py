@@ -67,6 +67,13 @@ def serve_js():
         raise HTTPException(status_code=404, detail="Arquivo app.js não encontrado.")
     return FileResponse(js_path, media_type="application/javascript")
 
+@app.get("/favicon.svg", include_in_schema=False)
+def serve_favicon():
+    favicon_path = os.path.join(WEB_DIR, "favicon.svg")
+    if not os.path.exists(favicon_path):
+        raise HTTPException(status_code=404, detail="Arquivo favicon.svg não encontrado.")
+    return FileResponse(favicon_path, media_type="image/svg+xml")
+
 # Libera o acesso do frontend (localhost, etc.)
 app.add_middleware(
     CORSMiddleware,

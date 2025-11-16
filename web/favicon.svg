@@ -1,0 +1,13 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo arredondado (roxo/azul do botão) -->
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="#4A6CF7"></rect>
+
+  <!-- Envelope (email) -->
+  <rect x="16" y="22" width="32" height="22" rx="4" fill="#FFFFFF"></rect>
+  <path d="M18 24 L32 34 L46 24" stroke="#4A6CF7" stroke-width="2" fill="none"></path>
+  <path d="M18 42 L28 32" stroke="#4A6CF7" stroke-width="2" fill="none"></path>
+  <path d="M46 42 L36 32" stroke="#4A6CF7" stroke-width="2" fill="none"></path>
+
+  <!-- Bolinha de notificação/IA no canto (sutil) -->
+  <circle cx="45" cy="19" r="6" fill="#FACC15"></circle>
+</svg>
