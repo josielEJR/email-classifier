@@ -27,6 +27,9 @@ emails_produtivos = [
     "Poderiam verificar o motivo da falha na transação?",
     "Preciso de orientação para concluir o cadastro",
     "Solicito retorno sobre o problema relatado ontem",
+    "Bom dia, estou com problema para acessar o sistema e preciso de suporte.",
+    "Poderiam me informar o status da minha solicitação de pagamento?",
+    "Não estou conseguindo gerar o relatório financeiro, poderiam verificar?",
 ]
 
 emails_improdutivos = [
@@ -55,6 +58,9 @@ emails_improdutivos = [
     "Desejo um ótimo feriado a todos",
     "Agradeço pela resposta rápida",
     "Bom dia, obrigado.",
+    "Tenham um ótimo fim de semana, obrigado por tudo!",
+    "Apenas passando para agradecer o excelente atendimento de sempre.",
+    "Feliz natal e boas festas para toda a equipe!",
 ]
 
 X = emails_produtivos + emails_improdutivos

@@ -1,18 +1,17 @@
-# 📧 Classificador de Emails com IA (Produtivo x Improdutivo + Resposta Automática)
+# 📧 Classificador de Emails com IA  
+Produtivo x Improdutivo + Resposta Automática + Lote (até 6 arquivos)
 
 Este projeto é uma aplicação web que:
 
-1. **Lê emails** (texto colado, `.txt` ou `.pdf`);
-2. **Classifica** em:
+1. **Lê emails** (texto colado, `.txt` ou `.pdf` ou arquivos dropados);
+2. **Classifica** cada email em:
    - `Produtivo` (quando exige ação/resposta)
    - `Improdutivo` (mensagens de cortesia, agradecimentos etc.)
-3. **Gera uma resposta automática** em português, usando **OpenAI GPT**.
-
-## 🖼️ Screenshot
-
-> Exemplo de tela da aplicação em uso:
-
-![Screenshot da aplicação](web/print.png)
+3. **Gera uma resposta automática** em português usando **OpenAI GPT**;
+4. **Processa vários emails em lote** (até **6 arquivos** de uma vez) e exibe:
+   - Categoria por arquivo
+   - Resumo da resposta sugerida
+   - Botão **“Copiar resposta”** por linha.
 
 Projeto desenvolvido como solução para um **desafio de processo seletivo** na área de IA / automação de atendimento.
 
@@ -21,17 +20,24 @@ Projeto desenvolvido como solução para um **desafio de processo seletivo** na 
 ## 🧱 Tecnologias utilizadas
 
 - **Backend**
-  - [Python 3](https://www.python.org/)
-  - [FastAPI](https://fastapi.tiangolo.com/)
-  - [Uvicorn](https://www.uvicorn.org/)
-  - [scikit-learn](https://scikit-learn.org/) (TF-IDF + Logistic Regression)
-  - [NLTK](https://www.nltk.org/) (stopwords em português)
-  - [pdfplumber](https://github.com/jsvine/pdfplumber) (extração de texto de PDF)
-  - [OpenAI](https://platform.openai.com/) (modelo GPT para gerar respostas)
+  - Python 3
+  - FastAPI + Uvicorn
+  - scikit-learn (TF-IDF + Logistic Regression)
+  - NLTK (stopwords em português)
+  - pdfplumber (extração de texto de PDF)
+  - OpenAI (modelo GPT para gerar respostas)
+  - python-dotenv (carregar variáveis de ambiente, ex.: `OPENAI_API_KEY`)
 
 - **Frontend**
-  - HTML, CSS, JavaScript puro (sem framework)
-  - Chamada ao backend via `fetch` (API REST)
+  - HTML, CSS, JavaScript puro
+  - UI com:
+    - Abas: **Texto** / **Arquivo(s)**
+    - Drag & drop para upload
+    - Cards de resultado
+    - Tabela de resultados em lote com botão **Copiar** por linha
+    - Histórico local (localStorage)
+    - Estatísticas rápidas (total, produtivos, improdutivos)
+    - Toasts / feedback visual
 
 ---
 
@@ -40,246 +46,310 @@ Projeto desenvolvido como solução para um **desafio de processo seletivo** na 
 ```bash
 email-classifier/
 ├── app/
-│   ├── main.py          # API FastAPI (classificação + GPT)
+│   ├── main.py          # API FastAPI (classificação + GPT + batch)
 │   └── train_model.py   # Script para treinar e salvar o modelo (model.pkl)
 ├── web/
-│   ├── index.html       # Interface web
-│   ├── styles.css       # Estilos básicos
-│   └── app.js           # Lógica JS (envio para a API)
+│   ├── index.html       # Interface web (tabs Texto/Arquivo + lote)
+│   ├── styles.css       # Estilos
+│   └── app.js           # Lógica JS (único vs. lote, tabela, histórico, etc.)
 ├── requirements.txt     # Dependências Python
 └── README.md            # Este arquivo
+```
 
+---
 
+## ✅ Pré-requisitos
 
-✅ Pré-requisitos
+- Python 3.9+
+- `pip` (gerenciador de pacotes)
+- (Opcional, mas recomendado) `venv` / `virtualenv`
 
-Antes de começar, você precisa ter instalado:
+Verificação rápida no Linux/Ubuntu:
 
-Python 3.9+
-
-pip (gerenciador de pacotes do Python)
-
-(Opcional, mas recomendado) virtualenv / venv
-
-No Linux/Ubuntu, você pode verificar:
-
+```bash
 python3 --version
 pip --version
+```
 
-🔧 1. Clonar o repositório
-git clone https://github.com/SEU_USUARIO/email-classifier.git
+---
+
+## 🔧 1. Clonar o repositório
+
+```bash
+git clone https://github.com/josielEJR/email-classifier.git
 cd email-classifier
+```
 
+> Substitua `josielEJR` pelo seu usuário real do GitHub.
 
-Substitua o link pelo URL real do seu repositório GitHub.
+---
 
-🐍 2. Criar e ativar o ambiente virtual
+## 🐍 2. Criar e ativar o ambiente virtual
+
+```bash
 python3 -m venv venv
 source venv/bin/activate        # Linux / macOS
 
 # No Windows (PowerShell):
-# venv\Scripts\Activate.ps1
+# .\venv\Scripts\Activate.ps1
+```
 
+Quando o ambiente estiver ativo, o terminal geralmente mostra `(venv)` no início da linha.
 
-Se o ambiente estiver ativo, seu terminal normalmente mostra (venv) no início da linha.
+---
 
-📦 3. Instalar dependências
+## 📦 3. Instalar dependências
 
-Com o venv ativado:
-
+```bash
 pip install -r requirements.txt
+```
 
-🧠 4. Treinar o modelo de classificação
+---
 
-O modelo (TF-IDF + Logistic Regression) é treinado em um conjunto de exemplos sintéticos para diferenciar emails produtivos x improdutivos.
+## 🧠 4. Treinar o modelo de classificação
 
-Rode:
+O modelo (TF-IDF + Logistic Regression) é treinado em um conjunto simples de exemplos para diferenciar **emails produtivos** x **improdutivos**.
 
+```bash
 python3 app/train_model.py
+```
 
+Se tudo der certo, será gerado o arquivo:
 
-Se tudo der certo, você verá algo como:
-
-              precision    recall  f1-score   support
-...
-
-✅ Modelo treinado e salvo em app/model.pkl
-
-
-Isso gera o arquivo:
-
+```bash
 app/model.pkl
+```
 
+> ⚠️ Importante: se esse arquivo **não existir**, o backend não sobe.  
+> Sempre rode o `train_model.py` pelo menos uma vez antes de iniciar a API.
 
-⚠️ Importante: se esse arquivo não existir, o backend vai falhar ao subir. Sempre rode o train_model.py pelo menos uma vez antes de iniciar a API.
+---
 
-🔑 5. Configurar a chave da OpenAI (OPENAI_API_KEY)
+## 🔑 5. Configurar a chave da OpenAI (`OPENAI_API_KEY`)
 
-Para a geração de respostas com GPT, é necessário ter uma API Key da OpenAI.
+A aplicação lê a chave via variável de ambiente (pode estar num `.env`).
 
-Acesse a plataforma da OpenAI (em API keys).
+### Opção A – Exportar direto no terminal
 
-Gere uma nova Secret Key.
-
-No mesmo terminal onde você vai rodar o backend, exporte a variável:
-
+```bash
 export OPENAI_API_KEY="SUA_CHAVE_AQUI"
+```
 
+Conferir:
 
-Você pode conferir se foi setada:
-
+```bash
 echo $OPENAI_API_KEY
+```
 
+### Opção B – Arquivo `.env`
 
-Se aparecer algo (mesmo truncado), está ok.
+Crie um arquivo `.env` na raiz (`email-classifier/.env`):
 
-No Windows (PowerShell), o equivalente é:
+```env
+OPENAI_API_KEY=SUA_CHAVE_AQUI
+```
 
-setx OPENAI_API_KEY "SUA_CHAVE_AQUI"
+O `main.py` usa `python-dotenv` para carregar essa variável.
 
-🚀 6. Subir o backend (API FastAPI)
+---
 
-Na raiz do projeto, com o venv ativo e a variável OPENAI_API_KEY configurada:
+## 🚀 6. Subir o backend (API FastAPI)
 
+Na raiz do projeto, com o venv ativo:
+
+```bash
 uvicorn app.main:app --reload
-
-
-Se tudo estiver correto, você verá algo como:
-
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     Application startup complete.
-
-
-Endpoints principais:
-
-GET / → health check (retorna status ok)
-
-POST /process → recebe email (texto ou arquivo) e retorna:
-
-{
-  "categoria": "Produtivo" ou "Improdutivo",
-  "resposta": "texto sugerido pelo GPT",
-  "texto_extraido": "trecho do email"
-}
-
-🌐 7. Subir o frontend (interface web)
-
-Em outro terminal (ou aba nova), sem problema se o venv não estiver ativo, rode:
-
-cd web
-python3 -m http.server 5500
-
+```
 
 Saída esperada:
 
+```text
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Application startup complete.
+```
+
+### Endpoints principais
+
+- `GET /`  
+  → Serve a interface web (`index.html`).
+
+- `POST /process`  
+  → Recebe **texto ou 1 arquivo** (`text` ou `file`) e retorna:
+  ```json
+  {
+    "categoria": "Produtivo" | "Improdutivo",
+    "resposta": "texto sugerido pelo GPT ou fallback",
+    "texto_extraido": "trecho do email"
+  }
+  ```
+
+- `POST /process_batch`  
+  → Recebe **vários arquivos** (`files`) e retorna:
+  ```json
+  {
+    "resultados": [
+      {
+        "filename": "email_1.txt",
+        "categoria": "Produtivo",
+        "resposta": "resposta sugerida",
+        "preview": "trecho do texto analisado"
+      },
+      ...
+    ]
+  }
+  ```
+
+Se a chamada à OpenAI falhar, o backend devolve uma **resposta padrão** (fallback), diferente para Produtivo e Improdutivo, para nunca ficar “sem resposta”.
+
+---
+
+## 🌐 7. Subir o frontend (interface web)
+
+Em outro terminal / aba:
+
+```bash
+cd web
+python3 -m http.server 5500
+```
+
+Saída esperada:
+
+```text
 Serving HTTP on 0.0.0.0 port 5500 ...
+```
 
+Acesse:
 
-Agora, abra o navegador e acesse:
+- Aplicação: `http://127.0.0.1:8000/`
 
-👉 http://127.0.0.1:5500
+> O FastAPI já está preparado para servir o `index.html` na raiz (`/`).
 
-Você verá a interface:
+---
 
-Campo para colar o texto do email;
+## 🧪 8. Testando a aplicação
 
-Campo de upload de arquivo (.txt ou .pdf);
+### 🔹 Modo 1 – Texto (aba **Texto**)
 
-Botão Processar;
+Exemplo de email **produtivo**:
 
-Área de resultado com:
+> Bom dia, estou com problema para acessar o sistema e preciso de uma atualização sobre a minha solicitação de suporte.
 
-Categoria: Produtivo / Improdutivo
-
-Resposta sugerida: resposta gerada pelo GPT.
-
-🧪 8. Testando a aplicação
-Exemplo 1 – Email produtivo
-
-Cole na caixa de texto:
-
-Bom dia, estou com problema para acessar o sistema e preciso de uma atualização sobre a minha solicitação de suporte.
-
-
-Clique em Processar.
+1. Vá na aba **Texto**  
+2. Cole o texto  
+3. Clique em **Processar**
 
 Resultado esperado:
 
-Categoria: Produtivo
+- Categoria: **Produtivo**
+- Card amarelo com mensagem de que requer ação
+- Resposta sugerida (GPT ou fallback)
+- Texto analisado disponível em “Texto analisado”.
 
-Resposta: mensagem formal, com próximos passos, gerada pelo GPT.
+---
 
-Exemplo 2 – Email improdutivo
-Olá, passando apenas para desejar um ótimo fim de ano a toda a equipe. Parabéns pelo excelente trabalho!
+### 🔹 Modo 2 – Arquivo único (aba **Arquivo(s)**)
 
+1. Vá na aba **Arquivo(s)**
+2. Arraste um `.txt` ou `.pdf` ou clique para selecionar
+3. Clique em **Processar**
 
-Clique em Processar.
+A lógica é a mesma do modo Texto, mas o backend primeiro extrai o conteúdo do arquivo.
 
-Resultado esperado:
+---
 
-Categoria: Improdutivo
+### 🔹 Modo 3 – Múltiplos arquivos / lote (aba **Arquivo(s)**)
 
-Resposta: agradecimento cordial, curto, indicando que nenhuma ação é necessária.
+1. Ainda na aba **Arquivo(s)**, selecione **até 6 arquivos** `.txt` ou `.pdf`  
+   - via drag & drop  
+   - ou segurando `Ctrl`/`Shift` ao selecionar
+2. O contador mostra algo como: `6 arquivos selecionados`
+3. Clique em **Processar**
 
-📡 9. Como chamar a API diretamente (Postman / cURL)
+A aplicação:
 
-Se você quiser testar a API sem o frontend:
+- Chama o endpoint `/process_batch`
+- Preenche a seção **“Resultados dos Arquivos”** com uma tabela contendo:
+  - `#` (índice)
+  - `Arquivo`
+  - `Categoria`
+  - `Resposta sugerida (resumo)`
+  - Botão **“Copiar resposta”** por linha
 
-a) Enviando texto direto (form-data)
+Cada item do lote também atualiza:
 
-URL: http://127.0.0.1:8000/process
+- Estatísticas (total, produtivos, improdutivos)
+- Histórico local (com limite de itens)
 
-Método: POST
+---
 
-Body: form-data
+## 📡 9. Testando a API diretamente (Postman / cURL)
 
-Campo text → conteúdo do email
+### a) Texto direto
 
-Exemplo curl:
-
+```bash
 curl -X POST http://127.0.0.1:8000/process \
   -F "text=Estou com dificuldade para acessar o portal, poderiam verificar?"
+```
 
-b) Enviando arquivo .txt ou .pdf
+### b) 1 arquivo `.txt` ou `.pdf`
+
+```bash
 curl -X POST http://127.0.0.1:8000/process \
-  -F "file=@meu_email.pdf"
+  -F "file=@email_exemplo.txt"
+```
 
-🧩 10. Possíveis erros comuns (Troubleshooting)
-1) RuntimeError: OPENAI_API_KEY não definida
+### c) Múltiplos arquivos (lote)
 
-Causa: variável de ambiente não foi configurada.
+```bash
+curl -X POST http://127.0.0.1:8000/process_batch \
+  -F "files=@email1.txt" \
+  -F "files=@email2.txt" \
+  -F "files=@email3.txt"
+```
 
-Solução: no terminal onde vai rodar o uvicorn:
+---
 
-export OPENAI_API_KEY="SUA_CHAVE_AQUI"
-uvicorn app.main:app --reload
+## 🧩 10. Possíveis erros comuns (Troubleshooting)
 
-2) Arquivo de modelo não encontrado em: ... model.pkl
+**1) `RuntimeError: OPENAI_API_KEY não definida`**
 
-Causa: você ainda não rodou o script de treino.
+- Causa: variável de ambiente não foi configurada.
+- Solução:
+  ```bash
+  export OPENAI_API_KEY="SUA_CHAVE_AQUI"
+  uvicorn app.main:app --reload
+  ```
 
-Solução:
+---
 
-python3 app/train_model.py
+**2) `Arquivo de modelo não encontrado em: ... model.pkl`**
 
+- Causa: `train_model.py` ainda não foi rodado.
+- Solução:
+  ```bash
+  python3 app/train_model.py
+  ```
 
-Depois disso, tente subir o backend novamente.
+---
 
-3) Frontend abre, mas não aparece resposta
+**3) Frontend abre mas não aparece resposta**
 
-Verifique se o backend está rodando em http://127.0.0.1:8000.
+- Verifique se o backend está ativo em `http://127.0.0.1:8000`.
+- Veja no terminal se está chegando requisição:
+  ```text
+  INFO: 127.0.0.1:XXXXX - "POST /process HTTP/1.1" 200 OK
+  ```
+- Se aparecer erro 500, normalmente é:
+  - API Key da OpenAI incorreta
+  - `model.pkl` ausente ou corrompido
 
-Veja se o terminal do backend mostra logs da requisição:
+---
 
-INFO: 127.0.0.1:XXXXX - "POST /process HTTP/1.1" 200 OK
-
-
-Se aparecer erro 500, veja o traceback no terminal (geralmente é API key ou modelo).
-
-📌 11. Resumo rápido (para avaliadores)
+## 📌 11. Resumo rápido (para avaliadores)
 
 Para rodar localmente:
 
+```bash
 git clone https://github.com/SEU_USUARIO/email-classifier.git
 cd email-classifier
 
@@ -289,18 +359,18 @@ pip install -r requirements.txt
 
 python3 app/train_model.py
 
-export OPENAI_API_KEY="SUA_CHAVE_AQUI"
+# Definir OPENAI_API_KEY (via .env ou export)
 uvicorn app.main:app --reload
-
-
-Em outro terminal:
-
-cd email-classifier/web
-python3 -m http.server 5500
-
+```
 
 Acessar:
 
-Backend: http://127.0.0.1:8000
+- Aplicação: `http://127.0.0.1:8000/`
 
-Frontend: http://127.0.0.1:5500
+Funcionalidades-chave:
+
+- Classificação **Produtivo x Improdutivo**
+- Resposta automática via **GPT** com **fallback** em caso de erro
+- Upload de **texto, 1 arquivo ou múltiplos arquivos (até 6)**
+- Tabela de resultados em lote com **botão de copiar resposta** por item
+- Histórico e estatísticas de uso no próprio frontend.
