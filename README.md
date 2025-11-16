@@ -1,4 +1,4 @@
-# 📧 Classificador de Emails com IA  
+# Classificador de Emails com IA  
 Produtivo x Improdutivo + Resposta Automática + Lote (até 6 arquivos)
 
 Este projeto é uma aplicação web que:
@@ -17,7 +17,7 @@ Projeto desenvolvido como solução para um **desafio de processo seletivo** na 
 
 ---
 
-## 🧱 Tecnologias utilizadas
+## Tecnologias utilizadas
 
 - **Backend**
   - Python 3
@@ -41,7 +41,7 @@ Projeto desenvolvido como solução para um **desafio de processo seletivo** na 
 
 ---
 
-## 📁 Estrutura do projeto
+## Estrutura do projeto
 
 ```bash
 email-classifier/
@@ -58,7 +58,7 @@ email-classifier/
 
 ---
 
-## ✅ Pré-requisitos
+## Pré-requisitos
 
 - Python 3.9+
 - `pip` (gerenciador de pacotes)
@@ -73,7 +73,7 @@ pip --version
 
 ---
 
-## 🔧 1. Clonar o repositório
+## 1. Clonar o repositório
 
 ```bash
 git clone https://github.com/josielEJR/email-classifier.git
@@ -84,7 +84,7 @@ cd email-classifier
 
 ---
 
-## 🐍 2. Criar e ativar o ambiente virtual
+## 2. Criar e ativar o ambiente virtual
 
 ```bash
 python3 -m venv venv
@@ -98,7 +98,7 @@ Quando o ambiente estiver ativo, o terminal geralmente mostra `(venv)` no iníci
 
 ---
 
-## 📦 3. Instalar dependências
+## 3. Instalar dependências
 
 ```bash
 pip install -r requirements.txt
@@ -106,7 +106,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🧠 4. Treinar o modelo de classificação
+## 4. Treinar o modelo de classificação
 
 O modelo (TF-IDF + Logistic Regression) é treinado em um conjunto simples de exemplos para diferenciar **emails produtivos** x **improdutivos**.
 
@@ -120,12 +120,12 @@ Se tudo der certo, será gerado o arquivo:
 app/model.pkl
 ```
 
-> ⚠️ Importante: se esse arquivo **não existir**, o backend não sobe.  
+> Importante: se esse arquivo **não existir**, o backend não sobe.  
 > Sempre rode o `train_model.py` pelo menos uma vez antes de iniciar a API.
 
 ---
 
-## 🔑 5. Configurar a chave da OpenAI (`OPENAI_API_KEY`)
+## 5. Configurar a chave da OpenAI (`OPENAI_API_KEY`)
 
 A aplicação lê a chave via variável de ambiente (pode estar num `.env`).
 
@@ -153,7 +153,7 @@ O `main.py` usa `python-dotenv` para carregar essa variável.
 
 ---
 
-## 🚀 6. Subir o backend (API FastAPI)
+## 6. Subir o backend (API FastAPI)
 
 Na raiz do projeto, com o venv ativo:
 
@@ -203,7 +203,7 @@ Se a chamada à OpenAI falhar, o backend devolve uma **resposta padrão** (fallb
 
 ---
 
-## 🌐 7. Subir o frontend (interface web)
+## 7. Subir o frontend (interface web)
 
 Em outro terminal / aba:
 
@@ -226,9 +226,9 @@ Acesse:
 
 ---
 
-## 🧪 8. Testando a aplicação
+## 8. Testando a aplicação
 
-### 🔹 Modo 1 – Texto (aba **Texto**)
+### Modo 1 – Texto (aba **Texto**)
 
 Exemplo de email **produtivo**:
 
@@ -247,7 +247,7 @@ Resultado esperado:
 
 ---
 
-### 🔹 Modo 2 – Arquivo único (aba **Arquivo(s)**)
+### Modo 2 – Arquivo único (aba **Arquivo(s)**)
 
 1. Vá na aba **Arquivo(s)**
 2. Arraste um `.txt` ou `.pdf` ou clique para selecionar
@@ -257,7 +257,7 @@ A lógica é a mesma do modo Texto, mas o backend primeiro extrai o conteúdo do
 
 ---
 
-### 🔹 Modo 3 – Múltiplos arquivos / lote (aba **Arquivo(s)**)
+### Modo 3 – Múltiplos arquivos / lote (aba **Arquivo(s)**)
 
 1. Ainda na aba **Arquivo(s)**, selecione **até 6 arquivos** `.txt` ou `.pdf`  
    - via drag & drop  
@@ -282,7 +282,7 @@ Cada item do lote também atualiza:
 
 ---
 
-## 📡 9. Testando a API diretamente (Postman / cURL)
+## 9. Testando a API diretamente (Postman / cURL)
 
 ### a) Texto direto
 
@@ -309,7 +309,7 @@ curl -X POST http://127.0.0.1:8000/process_batch \
 
 ---
 
-## 🧩 10. Possíveis erros comuns (Troubleshooting)
+## 10. Possíveis erros comuns (Troubleshooting)
 
 **1) `RuntimeError: OPENAI_API_KEY não definida`**
 
@@ -345,7 +345,7 @@ curl -X POST http://127.0.0.1:8000/process_batch \
 
 ---
 
-## 📌 11. Resumo rápido (para avaliadores)
+## 11. Resumo rápido (para avaliadores)
 
 Para rodar localmente:
 
