@@ -138,6 +138,9 @@ function setupEventListeners() {
       localStorage.removeItem("emailStats");
       updateStats();
       updateHistory();
+      // Limpar mensagens de status ao limpar histórico
+      showStatus("", "info");
+      showBatchStatus("", "info");
       showToast("Histórico limpo com sucesso!", "success");
     }
   });
@@ -288,6 +291,8 @@ async function processEmail() {
   }
 
   clearResults();
+  // Limpar status do lote para evitar mensagens duplicadas
+  showBatchStatus("", "info");
   showStatus("Analisando email com IA...", "info");
 
   setLoadingState(true);
@@ -347,6 +352,9 @@ async function processBatch() {
   if (batchTbody) batchTbody.innerHTML = "";
   if (batchResults) batchResults.style.display = "none";
   resultContainer.style.display = "none";
+  
+  // Limpar status individual para evitar mensagens duplicadas
+  showStatus("", "info");
 
   showBatchStatus(`Processando ${fileInput.files.length} arquivo(s)...`, "info");
   setLoadingState(true);
