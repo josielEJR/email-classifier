@@ -79,9 +79,6 @@ pip --version
 git clone https://github.com/josielEJR/email-classifier.git
 cd email-classifier
 ```
-
-> Substitua `josielEJR` pelo seu usuário real do GitHub.
-
 ---
 
 ## 2. Criar e ativar o ambiente virtual
